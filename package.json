@@ -1,0 +1,20 @@
+{
+  "name": "lvmama-gulp",
+  "version": "0.0.1",
+  "description": "lvmama-gulp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/angryihan/lvmama-gulp.git"
+  },
+  "keywords": [
+    "gulp"
+  ],
+  "author": "angryihan",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-sass": "^3.1.0",
+    "browser-sync": "^2.18.8"
+  },
+  "dependencies": {}
+}

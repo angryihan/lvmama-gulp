@@ -1,0 +1,13 @@
+@charset "UTF-8";
+$img: url(http://pic.lvmama.com/img/flight/international/index.png);
+
+@mixin etc() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wrap {
+  font-size: 24px;
+  text-align: center;
+}
