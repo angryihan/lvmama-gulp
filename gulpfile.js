@@ -3,19 +3,18 @@ let sass = require('gulp-sass');
 let browserSync = require("browser-sync").create();
 let through = require('through2');
 const CDN_PREFIX = 'http://pic.lvmama.com/min/index.php?f=';
+const PIC_PATH = 'pic.lvmama.com';
 const CONCAT_CONST = {
     'js': {
         concatReg: /<!--js-concat-->([\s\S]*?)<!--js-concat-end-->/g,
         pathReg: /src=["'](.*?)["']/g,
-        resultStart: '<script src="',
-        resultEnd: '"></script>',
+        resultPath: '<script src="{{path}}"></script>\n\t<script src="http://pic.lvmama.com/min/index.php?f=/js/v5/ibm/eluminate.js,/js/v5/ibm/coremetrics-initalize.js,/js/common/losc.js"></script>',
         typeAlias: 'js'
     },
     'css': {
         concatReg: /<!--css-concat-->([\s\S]*?)<!--css-concat-end-->/g,
         pathReg: /href=["'](.*?)["']/g,
-        resultStart: '<link rel="stylesheet" href="',
-        resultEnd: '">',
+        resultPath: '<link rel="stylesheet" href="{{path}}">',
         typeAlias: 'styles'
     }
 }
@@ -34,14 +33,13 @@ gulp.task('default', function () {
         }
     });
     gulp.watch('sass/**/*.scss', ['sass']);
-    gulp.watch(["*.html", "js/**/*.js"]).on("change", browserSync.reload);
+    gulp.watch(["*.html", "js/**/*.js", "css/**/*.css"]).on("change", browserSync.reload);
 });
 
 gulp.task('sass', function () {
     return gulp.src('sass/**/*.scss')
         .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError))
-        .pipe(gulp.dest('css'))
-        .pipe(browserSync.reload({stream: true}));
+        .pipe(gulp.dest('css'));
 });
 
 gulp.task('html2dest', function () {
@@ -71,19 +69,18 @@ function buildHtml(file) {
 }
 
 function concat(string, type) {
-    let picPath = 'pic.lvmama.com';
     return string.replace(CONCAT_CONST[type].concatReg, function (match, matchContent) {
         let relativePaths = [];
         let regGroup;
         while (regGroup = CONCAT_CONST[type].pathReg.exec(matchContent)) {
-            let lastIndexOfPic = regGroup[1].lastIndexOf(picPath);
+            let lastIndexOfPic = regGroup[1].lastIndexOf(PIC_PATH);
             let lastIndexOfLocal = regGroup[1].lastIndexOf(type + '/');
             if (lastIndexOfPic != -1) {
-                relativePaths.push(regGroup[1].substring(lastIndexOfPic + picPath.length));
+                relativePaths.push(regGroup[1].substring(lastIndexOfPic + PIC_PATH.length));
             } else {
                 relativePaths.push('/' + CONCAT_CONST[type].typeAlias + PATH_CONFIG.projectPath + regGroup[1].substring(lastIndexOfLocal + type.length));
             }
         }
-        return CONCAT_CONST[type].resultStart + CDN_PREFIX + relativePaths.join(',') + CONCAT_CONST[type].resultEnd;
+        return CONCAT_CONST[type].resultPath.replace("{{path}}",CDN_PREFIX + relativePaths.join(','));
     });
 }
