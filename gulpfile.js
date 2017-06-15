@@ -8,7 +8,7 @@ const CONCAT_CONST = {
     'js': {
         concatReg: /<!--js-concat-->([\s\S]*?)<!--js-concat-end-->/g,
         pathReg: /src=["'](.*?)["']/g,
-        resultPath: '<script src="{{path}}"></script>\n\t<script src="http://pic.lvmama.com/min/index.php?f=/js/v5/ibm/eluminate.js,/js/v5/ibm/coremetrics-initalize.js,/js/common/losc.js"></script>',
+        resultPath: '<script src="{{path}}"></script>\n<script src="' + CDN_PREFIX + '/js/v5/ibm/eluminate.js,/js/v5/ibm/coremetrics-initalize.js,/js/common/losc.js"></script>',
         typeAlias: 'js'
     },
     'css': {
@@ -38,11 +38,11 @@ gulp.task('default', function () {
 
 gulp.task('sass', function () {
     return gulp.src('sass/**/*.scss')
-        .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError))
+        .pipe(sass({outputStyle: 'compact'}).on('error', sass.logError))
         .pipe(gulp.dest('css'));
 });
 
-gulp.task('html2dest', function () {
+gulp.task('html2dist', function () {
     gulp.src('*.html')
         .pipe(through.obj(function (file, encoding, callback) {
             this.push(buildHtml(file));
@@ -51,12 +51,12 @@ gulp.task('html2dest', function () {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('toPages', function () {
+gulp.task('toPages', ['html2dist'], function () {
     gulp.src('dist/*.html')
         .pipe(gulp.dest(PATH_CONFIG.pageSvnPath + PATH_CONFIG.projectPath));
 });
 
-gulp.task('toPic', function () {
+gulp.task('toPic', ['sass'], function () {
     gulp.src('js/**/*.js')
         .pipe(gulp.dest(PATH_CONFIG.picSvnPath + '/js' + PATH_CONFIG.projectPath));
     gulp.src('css/**/*.css')
@@ -81,6 +81,6 @@ function concat(string, type) {
                 relativePaths.push('/' + CONCAT_CONST[type].typeAlias + PATH_CONFIG.projectPath + regGroup[1].substring(lastIndexOfLocal + type.length));
             }
         }
-        return CONCAT_CONST[type].resultPath.replace("{{path}}",CDN_PREFIX + relativePaths.join(','));
+        return CONCAT_CONST[type].resultPath.replace("{{path}}", CDN_PREFIX + relativePaths.join(','));
     });
 }
