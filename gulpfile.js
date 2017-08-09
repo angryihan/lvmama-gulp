@@ -43,7 +43,7 @@ gulp.task('sass', function () {
 });
 
 gulp.task('html2dist', function () {
-    gulp.src('*.html')
+    return gulp.src('*.html')
         .pipe(through.obj(function (file, encoding, callback) {
             this.push(buildHtml(file));
             callback();
